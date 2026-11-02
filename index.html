@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#080d1b">
+  <meta name="description" content="FRIDAY — your personal AI assistant">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <title>FRIDAY — Personal AI</title>
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">F</div>
+        <div><div class="brand-name">FRIDAY</div><div class="brand-sub">PERSONAL AI ASSISTANT</div></div>
+      </div>
+      <div class="status"><span class="status-dot"></span> ONLINE</div>
+    </header>
+
+    <section class="hero">
+      <div class="eyebrow">YOUR ASSISTANT IS READY</div>
+      <div class="orb-wrap" aria-hidden="true">
+        <div class="orb-ring ring-one"></div><div class="orb-ring ring-two"></div>
+        <div class="orb"><span>F</span></div>
+      </div>
+      <h1>How can I help <span>you?</span></h1>
+      <p class="hero-copy">Ask me anything. Type a message or use your voice.</p>
+    </section>
+
+    <section class="chat-card" aria-label="Chat with FRIDAY">
+      <div class="chat-heading"><span>CONVERSATION</span><button id="clearBtn" class="text-button" type="button">Clear</button></div>
+      <div id="messages" class="messages" aria-live="polite">
+        <div class="message assistant">
+          <div class="avatar">F</div>
+          <div class="bubble"><strong>FRIDAY</strong><p>Hello! I’m FRIDAY. I’m ready to help. You can chat with me in English or Hindi.</p></div>
+        </div>
+      </div>
+      <div id="listeningNote" class="listening-note" hidden>Listening… speak now</div>
+      <form id="chatForm" class="composer">
+        <input id="messageInput" type="text" autocomplete="off" placeholder="Message FRIDAY…" aria-label="Message FRIDAY">
+        <button id="micBtn" class="icon-button" type="button" aria-label="Use voice input" title="Voice input">🎙</button>
+        <button class="send-button" type="submit" aria-label="Send message">➤</button>
+      </form>
+      <div class="composer-hint">Voice input depends on browser support and microphone permission.</div>
+    </section>
+
+    <section class="quick-actions">
+      <button class="quick-card" data-prompt="Help me make a study plan."><span>▤</span><b>Study help</b><small>Plan and learn</small></button>
+      <button class="quick-card" data-prompt="Explain artificial intelligence in simple words."><span>✦</span><b>Learn something</b><small>Simple explanations</small></button>
+      <button class="quick-card" data-prompt="Give me a creative idea for today."><span>◈</span><b>Get ideas</b><small>Think creatively</small></button>
+    </section>
+    <footer>FRIDAY DEMO · Your conversations stay in this browser session.</footer>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
