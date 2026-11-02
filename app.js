@@ -3,6 +3,8 @@ const form = document.getElementById("chatForm");
 const input = document.getElementById("messageInput");
 const micBtn = document.getElementById("micBtn");
 const listeningNote = document.getElementById("listeningNote");
+const voiceLang = document.getElementById("voiceLang");
+const speakReplies = document.getElementById("speakReplies");
 
 function addMessage(text, who="assistant") {
   const row = document.createElement("div");
@@ -33,18 +35,22 @@ function addMessage(text, who="assistant") {
 
 function localReply(message) {
   const m = message.toLowerCase();
-  if (/^(hi|hello|hey|hii)\b/.test(m)) return "Hello! Main FRIDAY hoon. Aaj main aapki kis tarah madad kar sakta hoon?";
-  if (m.includes("study") || m.includes("homework") || m.includes("padh")) return "Bilkul! Apna subject aur topic batao. Main use simple steps mein samjhaunga aur practice mein help karunga.";
-  if (m.includes("time") || m.includes("date")) return `Aapke device ke mutabik abhi ${new Date().toLocaleString()} hai.`;
-  if (m.includes("who are you") || m.includes("tum kaun")) return "Main FRIDAY hoon — aapka personal assistant demo. Abhi main basic local replies deta hoon; AI brain connect karna next step hai.";
-  return "Message mil gaya! Main abhi demo mode mein hoon, isliye mere paas connected AI brain ya live internet search nahi hai. Agle setup step mein hum secure AI connection add karenge.";
+  if (/^(hi|hello|hey|hii)\b/.test(m) || /^(नमस्ते|हाय|हेलो)/.test(message))
+    return "Hello! Main FRIDAY hoon. Aaj main aapki kis tarah madad kar sakta hoon?";
+  if (m.includes("study") || m.includes("homework") || m.includes("padh") || /पढ़ाई|होमवर्क/.test(message))
+    return "Bilkul! Apna subject aur topic batao. Main use simple steps mein samjhaunga aur practice mein help karunga.";
+  if (m.includes("time") || m.includes("date") || /समय|तारीख/.test(message))
+    return `Aapke device ke mutabik abhi ${new Date().toLocaleString()} hai.`;
+  if (m.includes("who are you") || m.includes("tum kaun") || /तुम कौन/.test(message))
+    return "Main FRIDAY hoon — aapka personal assistant demo. Abhi main basic local replies deta hoon; real AI brain abhi connect nahi hai.";
+  return "Message mil gaya! Main abhi demo mode mein hoon, isliye mere paas connected AI brain ya live internet search nahi hai. Voice feature aapki baat sun sakta hai aur ye demo reply bolkar suna sakta hai.";
 }
 
 function speak(text) {
-  if (!("speechSynthesis" in window)) return;
+  if (!("speechSynthesis" in window) || !speakReplies.checked) return;
   window.speechSynthesis.cancel();
   const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = /[\u0900-\u097F]/.test(text) ? "hi-IN" : "en-IN";
+  utterance.lang = /[\u0900-\u097F]/.test(text) ? "hi-IN" : (voiceLang.value || "en-IN");
   window.speechSynthesis.speak(utterance);
 }
 
@@ -54,7 +60,10 @@ function send(text) {
   addMessage(clean, "user");
   input.value = "";
   const reply = localReply(clean);
-  window.setTimeout(() => addMessage(reply), 350);
+  window.setTimeout(() => {
+    addMessage(reply);
+    speak(reply);
+  }, 300);
 }
 
 form.addEventListener("submit", e => { e.preventDefault(); send(input.value); });
@@ -67,22 +76,28 @@ document.querySelectorAll(".quick-card").forEach(btn => btn.addEventListener("cl
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 if (SpeechRecognition) {
   const recognition = new SpeechRecognition();
-  recognition.lang = "hi-IN";
+  recognition.lang = voiceLang.value;
   recognition.interimResults = false;
   recognition.maxAlternatives = 1;
+  voiceLang.addEventListener("change", () => { recognition.lang = voiceLang.value; });
   micBtn.addEventListener("click", () => {
-    try { recognition.start(); } catch (_) {}
+    try { recognition.lang = voiceLang.value; recognition.start(); }
+    catch (_) { listeningNote.hidden = false; listeningNote.textContent = "Please wait, microphone is starting…"; }
   });
-  recognition.onstart = () => { listeningNote.hidden = false; micBtn.textContent = "●"; };
+  recognition.onstart = () => { listeningNote.hidden = false; listeningNote.textContent = "Listening… speak now"; micBtn.textContent = "●"; };
   recognition.onend = () => { listeningNote.hidden = true; micBtn.textContent = "🎙"; };
-  recognition.onerror = () => { listeningNote.textContent = "Voice input unavailable. Please type your message."; };
+  recognition.onerror = () => { listeningNote.hidden = false; listeningNote.textContent = "Mic unavailable. Check permission or type your message."; };
   recognition.onresult = event => {
     const transcript = event.results[0][0].transcript;
     input.value = transcript;
     send(transcript);
   };
 } else {
-  micBtn.addEventListener("click", () => addMessage("Your browser does not support voice input here. Try Chrome on Android or type your message."));
+  micBtn.addEventListener("click", () => addMessage("Voice input is not supported by this browser. Try Chrome on Android, allow microphone permission, or type your message."));
+}
+if (!("speechSynthesis" in window)) {
+  speakReplies.checked = false;
+  speakReplies.disabled = true;
 }
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(() => {}));
